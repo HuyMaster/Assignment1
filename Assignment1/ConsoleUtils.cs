@@ -44,7 +44,7 @@ struct FormatText {
     public object text;
     public ConsoleColor? color;
 
-    public FormatText(object text, ConsoleColor? color) {
+    private FormatText(object text, ConsoleColor? color) {
         this.text = text;
         this.color = color;
     }
