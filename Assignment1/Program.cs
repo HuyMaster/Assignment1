@@ -59,7 +59,7 @@ class Program {
         List<FormatText> pairs = types
             .ToList()
             .ToDictionary(x => x, x => x == types[selected] ? ConsoleColor.Green : ConsoleColor.Red)
-            .Select(x => FormatText.Of(x.Key + "  ", x.Value))
+            .Select(x => new FormatText(x.Key + " ", x.Value))
             .ToList();
         ConsoleUtils.WriteLineAt(line, "Type\t(Tab: Next, Enter: Select)");
         ConsoleUtils.WriteWithColorAt(line + 1, [.. pairs, FormatText.Of($"({types[selected].GetDescription()}) ", null)]);
