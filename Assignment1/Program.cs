@@ -62,7 +62,7 @@ class Program {
             .Select(x => FormatText.Of(x.Key + "  ", x.Value))
             .ToList();
         ConsoleUtils.WriteLineAt(line, "Type\t(Tab: Next, Enter: Select)");
-        ConsoleUtils.WriteWithColorAt(line + 1, [.. pairs, FormatText.Of($"({types[selected].GetDescription()}) ", null)]);
+        ConsoleUtils.WriteWithColorAt(line + 1, [.. pairs, FormatText.Of($"({types[selected].GetDescription()})", null)]);
 
         ConsoleKey key = Console.ReadKey().Key;
         Console.Write("\b \b");
