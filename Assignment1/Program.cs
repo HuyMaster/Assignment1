@@ -1,6 +1,6 @@
 ﻿namespace Assignment1;
 
-class Program {
+static class Program {
 
 	public static void Main(string[] args) {
 		GUI.instance.ShowDialog();

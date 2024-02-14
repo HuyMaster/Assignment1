@@ -46,7 +46,6 @@ partial class GUI : Form {
 		username.Name = "username";
 		username.Size = new Size(473, 23);
 		username.TabIndex = 0;
-		username.TextChanged += NotAllowEmpty;
 		// 
 		// type_label
 		// 
@@ -84,8 +83,6 @@ partial class GUI : Form {
 		lastMonth.Name = "lastMonth";
 		lastMonth.Size = new Size(159, 23);
 		lastMonth.TabIndex = 2;
-		lastMonth.TextChanged += NotAllowEmpty;
-		lastMonth.TextChanged += NumberOnly;
 		// 
 		// thisMonth_label
 		// 
@@ -102,8 +99,6 @@ partial class GUI : Form {
 		thisMonth.Name = "thisMonth";
 		thisMonth.Size = new Size(159, 23);
 		thisMonth.TabIndex = 3;
-		thisMonth.TextChanged += NotAllowEmpty;
-		thisMonth.TextChanged += NumberOnly;
 		// 
 		// errorDisplay
 		// 
@@ -111,11 +106,11 @@ partial class GUI : Form {
 		// 
 		// perform
 		// 
-		perform.Location = new Point(497, 326);
+		perform.Location = new Point(486, 326);
 		perform.Name = "perform";
 		perform.Size = new Size(75, 23);
 		perform.TabIndex = 8;
-		perform.Text = "Calculator";
+		perform.Text = "Calculate";
 		perform.UseVisualStyleBackColor = true;
 		perform.Click += Perform_Click;
 		// 
@@ -149,42 +144,45 @@ partial class GUI : Form {
 	private void Perform_Click(object? sender, EventArgs e) {
 		if (sender == perform) {
 			string name = username.Text;
+			UserType type = (UserType) (this.type.SelectedValue ?? UserType.Household);
 			string lastMonthStr = lastMonth.Text;
 			string thisMonthStr = thisMonth.Text;
+
+			bool condition = true;
 			if (string.IsNullOrEmpty(name)) {
-
+				errorDisplay.SetError(username, "Username can NOT null");
+				condition = false;
+			} else {
+				errorDisplay.SetError(username, "");
 			}
-			if (type.SelectedItem is not UserType userType) {
 
+			if (!ParseDouble(lastMonthStr, out double lastMonthValue)) {
+				errorDisplay.SetError(lastMonth, "Not a number");
+				condition = false;
+			} else {
+				errorDisplay.SetError(lastMonth, "");
 			}
-			if (string.IsNullOrEmpty(lastMonthStr)) {
 
+			if (!ParseDouble(thisMonthStr, out double thisMonthValue)) {
+				errorDisplay.SetError(thisMonth, "Not a number");
+				condition = false;
+			} else {
+				errorDisplay.SetError(thisMonth, "");
+			}
+			if (thisMonthValue - lastMonthValue <= 0) {
+				errorDisplay.SetError(thisMonth, "This month must NOT be less than or equal to the last month");
+				condition = false;
+			} else {
+				errorDisplay.SetError(thisMonth, "");
+			}
+			if (condition) {
+				PrintResult(name, type, lastMonthValue, thisMonthValue);
 			}
 		}
 	}
 
-	private void NotAllowEmpty(object? o, EventArgs e) {
-		if (o is TextBox textBox) {
-			string str = textBox.Text;
-			if (str.Length == 0) {
-				errorDisplay.SetError(textBox, "Require input");
-			} else {
-				errorDisplay.SetError(textBox, "");
-			}
-		}
-	}
+	private void PrintResult(string username, UserType type, double lastMonth, double thisMonth) {
 
-	private void NumberOnly(object? o, EventArgs e) {
-		if (o is TextBox textBox) {
-			string str = textBox.Text;
-			if (ParseDouble(str, out double value) && !str.Contains('.')) {
-				errorDisplay.SetError(textBox, "");
-				Console.WriteLine(value);
-			} else {
-				errorDisplay.SetError(textBox, "Number only");
-				textBox.Clear();
-			}
-		}
 	}
 
 	private static bool ParseDouble(string? str, out double output) {
