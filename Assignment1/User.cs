@@ -1,30 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Assignment1;
 
-namespace Assignment1;
-struct User {
+internal struct User {
 	public String Username { get; set; }
 	public UserType Type { get; set; }
-	public double UseAmount { get; set; }
+	public double LastMonth { get; set; }
+	public double ThisMonth { get; set; }
 
 	public User() {
 		Username = "";
 		Type = UserType.Household;
-		UseAmount = 0;
+		LastMonth = 0;
+		ThisMonth = 0;
+	}
+
+	public double UseAmount() {
+		return ThisMonth - LastMonth;
 	}
 }
 
-enum UserType {
+internal enum UserType {
 	Household,
 	PublicService,
 	Production,
 	Business
 }
 
-static class UserTypeDescription {
+internal static class UserTypeDescription {
+
 	public static string GetDescription(this UserType type) {
 		return type switch {
 			UserType.Household => "Household customer",
@@ -36,7 +38,7 @@ static class UserTypeDescription {
 	}
 }
 
-static class UserTypeFeeCalculatorMethod {
+internal static class UserTypeFeeCalculatorMethod {
 
 	/// <param name="type"></param>
 	/// <param name="amount"></param>

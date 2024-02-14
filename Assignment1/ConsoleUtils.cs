@@ -1,10 +1,10 @@
-﻿using System.Diagnostics;
-using System.Reflection;
+﻿namespace Assignment1;
 
-namespace Assignment1;
-class ConsoleUtils {
+internal class ConsoleUtils {
 	private static int currentLine = 0;
-	private ConsoleUtils() { }
+
+	private ConsoleUtils() {
+	}
 
 	private static void ClearLine(int line) {
 		Console.SetCursorPosition(0, line);
@@ -28,6 +28,7 @@ class ConsoleUtils {
 		}
 		Console.ResetColor();
 	}
+
 	public static void WriteLine(params FormattedText[] text) {
 		Write(text);
 		Console.WriteLine();
@@ -76,6 +77,7 @@ public struct FormattedText {
 }
 
 public static class Formatter {
+
 	public static FormattedText Format(this object text) {
 		return FormattedText.Of(text);
 	}
