@@ -5,7 +5,7 @@ namespace Assignment1;
 
 internal class Database {
 	public static readonly Database Instance = new();
-	private readonly string filename = "database.db";
+	private readonly string filename = "database.txt";
 
 	private List<User> users;
 
