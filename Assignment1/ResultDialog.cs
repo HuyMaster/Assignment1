@@ -9,15 +9,27 @@ namespace Assignment1;
 internal partial class ResultDialog : Form {
 	private readonly User user;
 
-	public static ResultDialog Create(Form parent, User user) {
+	public static ResultDialog Create(Form parent, User? user) {
 		ResultDialog dialog = new(user);
 		dialog.ShowDialog(parent);
 		return dialog;
 	}
 
-	private ResultDialog(User user) => this.user = user;
+	private ResultDialog(User? user) {
+		User temp;
+		if (user == null) {
+			temp = new User();
+			temp.Username = "Invalid";
+			temp.Type = UserType.Household;
+			temp.LastMonth = 0;
+			temp.ThisMonth = 0;
+		} else {
+			temp = user.Value;
+		}
+		this.user = temp;
+	}
 
-	private new void ShowDialog(Form parent) {
+	private void ShowDialog(Form parent) {
 		InitializeComponent();
 		Thread t = new(new ThreadStart(() => base.ShowDialog(parent)));
 		t.Start();
@@ -80,7 +92,7 @@ internal partial class ResultDialog : Form {
 		used.Name = "used";
 		used.ReadOnly = true;
 		used.Size = new Size(294, 23);
-		used.Text = $"{user.UseAmount()}";
+		used.Text = String.Format("{0:#,0}", user.UseAmount());
 		//
 		// total_label
 		//
@@ -96,7 +108,7 @@ internal partial class ResultDialog : Form {
 		total.Name = "total";
 		total.ReadOnly = true;
 		total.Size = new Size(294, 23);
-		total.Text = $"{user.Type.CalculateFee(user.UseAmount())} VND";
+		total.Text = String.Format("{0:0,0} VND", Math.Round(user.Type.CalculateFee(user.UseAmount())));
 		//
 		// ResultDialog
 		//

@@ -16,6 +16,8 @@ internal struct User {
 	public double UseAmount() {
 		return ThisMonth - LastMonth;
 	}
+
+	public new string ToString() => $"User[{Username}]";
 }
 
 internal enum UserType {

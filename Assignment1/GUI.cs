@@ -21,6 +21,7 @@ internal partial class GUI : Form {
 		errorDisplay = new ErrorProvider(components);
 		thisMonth = new TextBox();
 		thisMonth_label = new Label();
+		listUsers = new ListBox();
 		perform = new Button();
 		((System.ComponentModel.ISupportInitialize) errorDisplay).BeginInit();
 		SuspendLayout();
@@ -84,7 +85,6 @@ internal partial class GUI : Form {
 		thisMonth_label.Location = new Point(329, 67);
 		thisMonth_label.Name = "thisMonth_label";
 		thisMonth_label.Size = new Size(67, 15);
-		thisMonth_label.TabIndex = 4;
 		thisMonth_label.Text = "This month";
 		//
 		// thisMonth
@@ -98,12 +98,37 @@ internal partial class GUI : Form {
 		//
 		errorDisplay.ContainerControl = this;
 		//
+		// listUser
+		//
+		listUsers.Location = new Point(11, 96);
+		listUsers.Size = new Size(550, 221);
+		listUsers.ColumnWidth = listUsers.Width;
+		listUsers.SelectionMode = SelectionMode.One;
+		listUsers.MouseUp += (o, e) => {
+			listUsers.SelectedIndex = listUsers.IndexFromPoint(e.X, e.Y);
+			UserDataBinding? value = (UserDataBinding?) listUsers.SelectedItem;
+			if (e.Button == MouseButtons.Right && value != null) {
+				DialogResult choice = MessageBox.Show("Remove this item?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+				if (choice == DialogResult.Yes) {
+					User user = value.User;
+					Database.Instance.Remove(user.Username, user.Type, user.LastMonth, user.ThisMonth);
+					RefreshList();
+				}
+			}
+		};
+		listUsers.MouseDoubleClick += (o, e) => {
+			UserDataBinding? value = (UserDataBinding?) listUsers.SelectedItem;
+			ResultDialog.Create(this, value?.User);
+		};
+		RefreshList();
+		//
+		//
 		// perform
 		//
 		perform.Location = new Point(486, 326);
 		perform.Name = "perform";
 		perform.Size = new Size(75, 23);
-		perform.TabIndex = 8;
+		perform.TabIndex = 4;
 		perform.Text = "Calculate";
 		perform.UseVisualStyleBackColor = true;
 		perform.Click += Perform_Click;
@@ -112,6 +137,7 @@ internal partial class GUI : Form {
 		//
 		ClientSize = new Size(584, 361);
 		Controls.Add(perform);
+		Controls.Add(listUsers);
 		Controls.Add(thisMonth);
 		Controls.Add(thisMonth_label);
 		Controls.Add(lastMonth);
@@ -120,7 +146,6 @@ internal partial class GUI : Form {
 		Controls.Add(type_label);
 		Controls.Add(username);
 		Controls.Add(name_label);
-		Cursor = Cursors.Hand;
 		FormBorderStyle = FormBorderStyle.FixedDialog;
 		MaximizeBox = false;
 		MinimizeBox = false;
@@ -134,10 +159,27 @@ internal partial class GUI : Form {
 		PerformLayout();
 	}
 
+	private void RefreshList() {
+		int index = listUsers.SelectedIndex;
+		listUsers.DataSource = Database.Instance.GetUsers().Sort((a, b) => {
+			double va = a.UseAmount();
+			double vb = b.UseAmount();
+			if (va > vb) {
+				return -1;
+			} else if (va == vb) {
+				return a.Username.CompareTo(b.Username);
+			}
+			return 1;
+		}).Select(x => new UserDataBinding(x)).ToList();
+		listUsers.DisplayMember = "Name";
+		listUsers.ValueMember = "User";
+		listUsers.SelectedIndex = listUsers.Items.Count - 1 < index ? listUsers.Items.Count - 1 : index;
+	}
+
 	private void Perform_Click(object? sender, EventArgs e) {
 		if (sender == perform) {
 			string name = username.Text;
-			UserType type = (UserType) (this.type.SelectedValue ?? UserType.Household);
+			UserType Type = (UserType) (type.SelectedValue ?? UserType.Household);
 			string lastMonthStr = lastMonth.Text;
 			string thisMonthStr = thisMonth.Text;
 
@@ -169,19 +211,20 @@ internal partial class GUI : Form {
 				errorDisplay.SetError(thisMonth, "");
 			}
 			if (condition) {
-				ShowResult(name, type, lastMonthValue, thisMonthValue);
+				AddResult(name, Type, lastMonthValue, thisMonthValue);
 			}
 		}
 	}
 
-	private void ShowResult(string username, UserType type, double lastMonth, double thisMonth) {
+	private void AddResult(string username, UserType type, double lastMonth, double thisMonth) {
 		User user = new();
 		user.Username = username;
 		user.Type = type;
 		user.LastMonth = lastMonth;
 		user.ThisMonth = thisMonth;
 
-		ResultDialog.Create(this, user);
+		Database.Instance.Add(user);
+		RefreshList();
 	}
 
 	private static bool ParseDouble(string? str, out double output) {
@@ -197,19 +240,27 @@ internal partial class GUI : Form {
 
 #pragma warning disable 8618
 	private System.ComponentModel.IContainer components;
+	private ErrorProvider errorDisplay;
+
+	private Label name_label;
 	private TextBox username;
 	private Label type_label;
 	private ComboBox type;
 	private Label lastMonth_label;
 	private TextBox lastMonth;
-	private ErrorProvider errorDisplay;
-	private TextBox thisMonth;
 	private Label thisMonth_label;
+	private TextBox thisMonth;
+
+	private ListBox listUsers;
 	private Button perform;
-	private Label name_label;
 }
 
 internal class UserTypeDataBinding(UserType Type) {
-	public string Name { get; set; } = $"{Type} ({Type.GetDescription()})";
-	public UserType Type { get; set; } = Type;
+	public string Name { get; } = $"{Type} ({Type.GetDescription()})";
+	public UserType Type { get; } = Type;
+}
+
+internal class UserDataBinding(User user) {
+	public string Name { get; } = user.ToString();
+	public User User { get; } = user;
 }
