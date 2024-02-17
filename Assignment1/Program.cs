@@ -157,6 +157,7 @@ internal static class Program {
 			ConsoleKeyInfo key = Console.ReadKey();
 			if (key.Modifiers == ConsoleModifiers.Control) {
 				if (key.Key == ConsoleKey.M) {
+					ConsoleUtils.WriteLine();
 					currentSortMethod = Chooser(ConsoleUtils.CurrentLine() + 1, sortModes, "Choose method");
 					list = list.Sort(currentSortMethod.GetComparison());
 				} else if (key.Key == ConsoleKey.F) {
@@ -169,6 +170,7 @@ internal static class Program {
 					list = Database.GetInstance().GetUsers(currentSortMethod);
 				} else if (key.Key == ConsoleKey.D) {
 					while (true) {
+						ConsoleUtils.WriteLine();
 						GetNumberInput(ConsoleUtils.CurrentLine(), "Index", out int index);
 						if (index >= list.Count) {
 							ConsoleUtils.WriteAt(ConsoleUtils.CurrentLine(), "Index out of bound".Format(ConsoleColor.Red));
@@ -202,7 +204,6 @@ internal static class Program {
 
 	private static T Chooser<T>(int line, ICollection<T> list, string prompt) {
 		int choice = 0;
-		Type type = typeof(T);
 
 		while (true) {
 			Dictionary<string, bool> paintDic = [];
