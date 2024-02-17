@@ -17,7 +17,7 @@ internal struct User {
 		return ThisMonth - LastMonth;
 	}
 
-	public new string ToString() => $"User[{Username}]";
+	public new string ToString() => $"User[{Username}] Used: {UseAmount()}";
 }
 
 internal enum UserType {
@@ -57,24 +57,24 @@ internal static class UserTypeFeeCalculatorMethod {
 
 	private static double Household(double amount) {
 		double[] prices = [5973, 7052, 8699, 15929];
-		double[] amountSteps = new double[prices.Length];
 		double fee = -1;
-		if (amount >= 0) {
-			for (int i = 0; i < amountSteps.Length; i++) {
-				if (i == amountSteps.Length - 1) {
-					amountSteps[i] = amount;
-					amount -= amountSteps[i];
-				} else {
-					amountSteps[i] = Math.Min(10, amount);
-					amount -= amountSteps[i];
-				}
-			}
-			fee = 0;
-			for (int i = 0; i < amountSteps.Length; i++) {
-				fee += amountSteps[i] * prices[i];
-				fee += Epf(amountSteps[i], prices[i]);
-			}
+
+		double price;
+		if (amount < 0) {
+			return fee;
+		} else if (amount < 10) {
+			price = prices[0];
+		} else if (amount < 20) {
+			price = prices[1];
+		} else if (amount < 30) {
+			price = prices[2];
+		} else {
+			price = prices[3];
 		}
+
+		fee = price * amount;
+		fee += Epf(amount, price);
+
 		return VAT(fee);
 	}
 

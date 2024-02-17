@@ -6,6 +6,13 @@ internal class ConsoleUtils {
 	private ConsoleUtils() {
 	}
 
+	public static void ClearAll() {
+		currentLine = 0;
+		Console.SetCursorPosition(0, 0);
+		Console.Write(new String(' ', Console.BufferWidth * Console.BufferHeight));
+		Console.SetCursorPosition(0, 0);
+	}
+
 	private static void ClearLine(int line) {
 		Console.SetCursorPosition(0, line);
 		Console.Write(new String(' ', Console.BufferWidth));
@@ -58,7 +65,7 @@ internal class ConsoleUtils {
 	}
 }
 
-public struct FormattedText {
+public readonly struct FormattedText {
 	public readonly object text;
 	public readonly ConsoleColor? color;
 
