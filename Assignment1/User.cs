@@ -1,10 +1,12 @@
 ﻿namespace Assignment1;
 
+// The Plain Old CLR Object(POCO) class to store user data
 internal struct User {
 	public String Username { get; set; }
 	public UserType Type { get; set; }
 	public double LastMonth { get; set; }
 	public double ThisMonth { get; set; }
+	public long addTime { get; set; }
 
 	public User() {
 		Username = "";
@@ -17,9 +19,12 @@ internal struct User {
 		return ThisMonth - LastMonth;
 	}
 
-	public new string ToString() => $"User[{Username}] Used: {UseAmount()}";
+	// Used to display basic information
+	// Ex: [P] User[Huy] Used: 15
+	public new string ToString() => $"[{Type.GetShortName()}]\tUser[{Username}] Used: {UseAmount()}";
 }
 
+// Provide specific functions for each type of user
 internal enum UserType {
 	Household,
 	PublicService,
@@ -27,6 +32,21 @@ internal enum UserType {
 	Business
 }
 
+// UserType extension returns the short name of the UserType
+internal static class UserTypeShortName {
+
+	public static string GetShortName(this UserType type) {
+		return type switch {
+			UserType.Household => "H",
+			UserType.PublicService => "PS",
+			UserType.Production => "P",
+			UserType.Business => "B",
+			_ => "?",
+		};
+	}
+}
+
+// UserType extension returns the description of the UserType
 internal static class UserTypeDescription {
 
 	public static string GetDescription(this UserType type) {
@@ -40,6 +60,7 @@ internal static class UserTypeDescription {
 	}
 }
 
+// UserType extension returns the fee calculating method of the UserType
 internal static class UserTypeFeeCalculatorMethod {
 
 	/// <param name="type"></param>
@@ -108,16 +129,18 @@ internal static class UserTypeFeeCalculatorMethod {
 		return VAT(fee);
 	}
 
+	// Environment protection fee
 	private static double Epf(double amount, double price) {
 		double epf = 0;
-		epf += amount * (price * 0.1);
+		epf += amount * (price * 0.1); // 10% of price
 		return epf;
 	}
 
+	//
 	private static double VAT(double fee) {
 		if (fee == -1) {
 			return fee;
 		}
-		return fee + (fee * 0.1);
+		return fee + (fee * 0.1); // Calculate VAT and add to fee and return final fee
 	}
 }

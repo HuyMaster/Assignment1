@@ -1,18 +1,16 @@
-﻿using Microsoft.VisualBasic.ApplicationServices;
-using System.Collections.Immutable;
-using System.Reflection;
-using System.Xml.Linq;
+﻿using System.Collections.Immutable;
 
 namespace Assignment1;
 
 internal static class Program {
 	private static readonly List<string> Action = ["Add", "Remove", "Query"];
 
+	// Main entry point to the program
 	public static void Main(string[] args) {
-		Database.GetInstance();
 		ChoiceAction();
 	}
 
+	// Get the user's desired Action
 	private static void ChoiceAction() {
 		int choice = 0;
 		ConsoleUtils.ClearAll();
@@ -57,10 +55,12 @@ internal static class Program {
 		}
 	}
 
+	// function to return the paint color of Action's item
 	private static ConsoleColor Paint(bool paint) {
 		return paint ? ConsoleColor.Green : ConsoleColor.Red;
 	}
 
+	// Function used to add users to the database
 	private static void AddUser() {
 		Console.Title = "User Adder";
 		ConsoleUtils.ClearAll();
@@ -79,7 +79,7 @@ internal static class Program {
 			GetNumberInput(3, "This month", out thisMonth);
 
 			if (lastMonth >= thisMonth) {
-				ConsoleUtils.WriteAt(3, "Last month must NOT be less than or equal to this month".Format(ConsoleColor.Red));
+				ConsoleUtils.WriteAt(3, "This month must NOT be less than or equal to last month".Format(ConsoleColor.Red));
 				Console.ReadKey();
 			} else {
 				break;
@@ -90,24 +90,28 @@ internal static class Program {
 		user.ThisMonth = thisMonth;
 
 		if (!string.IsNullOrEmpty(user.Username)) {
+			user.addTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 			Database.GetInstance().Add(user);
 		}
 	}
 
+	// Function to remove user from database
 	public static void RemoveUser() {
 		Console.Title = "User Remover";
 		ConsoleUtils.ClearAll();
 
-		ImmutableList<User> list = Database.GetInstance().GetUsers(SortMethod.ByName);
+		ImmutableList<User> list = Database.GetInstance().GetUsers();
 		if (list.Count <= 0) {
 			ConsoleUtils.WriteLine("Nothing to remove".Format(ConsoleColor.Red));
 			Console.ReadKey();
 			return;
 		}
 
+		// Print the list of users
 		for (int i = 0; i < list.Count; i++) {
 			ConsoleUtils.WriteLine($"{i}: ".Format(), list[i].ToString().Format(ConsoleColor.Green));
 		}
+
 		ConsoleUtils.WriteLine();
 		ConsoleUtils.WriteLine("< 0: ".Format(), "Exit".Format(ConsoleColor.Red));
 		while (true) {
@@ -119,6 +123,7 @@ internal static class Program {
 				return;
 			} else {
 				User user = list[index];
+				// Remove user from selected index
 				Database.GetInstance().Remove(user.Username, user.Type, user.LastMonth, user.ThisMonth);
 				break;
 			}
@@ -128,9 +133,10 @@ internal static class Program {
 	private static void QueryUser() {
 		Console.Title = "User Query";
 
+		//Get all sort method
 		List<SortMethod> sortModes = Enum.GetValues(typeof(SortMethod)).Cast<SortMethod>().ToList();
 
-		SortMethod currentSortMethod = SortMethod.Default;
+		SortMethod currentSortMethod = SortMethod.Random;
 		string? filter = "";
 		ImmutableList<User> list = Database.GetInstance().GetUsers(currentSortMethod);
 
@@ -202,6 +208,7 @@ internal static class Program {
 		}
 	}
 
+	// Provide a chooser so the user can select options
 	private static T Chooser<T>(int line, ICollection<T> list, string prompt) {
 		int choice = 0;
 
@@ -227,11 +234,13 @@ internal static class Program {
 		}
 	}
 
+	// Sub method of Chooser
 	private static UserType TypeChooser(int line) {
 		UserType[] types = (UserType[]) Enum.GetValues(typeof(UserType));
 		return Chooser(line, types, "Type");
 	}
 
+	// Get user input as double
 	private static void GetNumberInput(int line, string prompt, out double output) {
 		while (true) {
 			ConsoleUtils.WriteAt(line, $"{prompt}: ".Format());
@@ -245,6 +254,7 @@ internal static class Program {
 		}
 	}
 
+	// Get user input as int
 	private static void GetNumberInput(int line, string prompt, out int output) {
 		while (true) {
 			ConsoleUtils.WriteAt(line, $"{prompt}: ".Format());
